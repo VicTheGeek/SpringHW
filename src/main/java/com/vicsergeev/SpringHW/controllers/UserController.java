@@ -1,7 +1,6 @@
 package com.vicsergeev.SpringHW.controllers;
 
 import com.vicsergeev.SpringHW.dto.UserCreateDTO;
-import com.vicsergeev.SpringHW.dto.UserDeleteDTO;
 import com.vicsergeev.SpringHW.dto.UserResponseDTO;
 import com.vicsergeev.SpringHW.dto.UserUpdateDTO;
 import com.vicsergeev.SpringHW.services.UserService;

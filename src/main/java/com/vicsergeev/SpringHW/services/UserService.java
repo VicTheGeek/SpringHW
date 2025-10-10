@@ -7,7 +7,6 @@ import com.vicsergeev.SpringHW.exception.UserNotFoundException;
 import com.vicsergeev.SpringHW.model.User;
 import com.vicsergeev.SpringHW.repositories.UserRepository;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,10 +63,8 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException(id);
-        }
-        userRepository.deleteById(id);
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        userRepository.delete(user);
     }
 
     private @NotNull UserResponseDTO toResponseDTO(@NotNull User user) {
