@@ -24,11 +24,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/")
-    public ResponseEntity<String> home() {
-        return new ResponseEntity<>("Hello World!", HttpStatus.OK);
-    }
-
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.findAll();

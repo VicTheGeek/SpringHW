@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HomeController {
 
-    @GetMapping("/")
-    public ResponseEntity<String> home() {
-        return ResponseEntity.ok("Welcome to the User Management API. Use /users to access user endpoints.");
-    }
+//    @GetMapping("/")
+//    public ResponseEntity<String> showHome() {
+//        return ResponseEntity.ok("Welcome to the User Management API. Use /users to access user endpoints.");
+//    }
+
 }

@@ -1,0 +1,208 @@
+/* Cyberpunk 2077 Theme */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:
+            linear-gradient(135deg, #000000 0%, #0a0a2a 50%, #000000 100%),
+            radial-gradient(circle at 20% 50%, #1a0b2e 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, #0d1f36 0%, transparent 50%);
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Сетчатый фон в стиле Cyberpunk */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+            linear-gradient(rgba(0, 245, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 245, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.container {
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+}
+
+.neon-text {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #00f5ff; /* Яркий неоновый голубой из Cyberpunk */
+    text-shadow:
+            0 0 5px #00f5ff,
+            0 0 10px #00f5ff,
+            0 0 20px #00f5ff,
+            0 0 40px #00f5ff,
+            0 0 80px #ff003c, /* Акцентный розовый */
+            0 0 90px #ff003c,
+            0 0 100px #ff003c,
+            0 0 150px #ff003c;
+    animation: cyberFlicker 2s infinite alternate;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+
+.api-text {
+    font-size: 1.3rem;
+    color: #8be9fd; /* Светлый голубой */
+    text-shadow: 0 0 10px rgba(139, 233, 253, 0.5);
+    margin-top: 20px;
+}
+
+.api-text a {
+    color: #ff003c; /* Неоновый розовый */
+    text-decoration: none;
+    text-shadow:
+            0 0 5px #ff003c,
+            0 0 10px #ff003c;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border-bottom: 1px solid #ff003c;
+    padding-bottom: 2px;
+}
+
+.api-text a:hover {
+    color: #00f5ff; /* При наведении становится голубым */
+    text-shadow:
+            0 0 5px #00f5ff,
+            0 0 10px #00f5ff,
+            0 0 20px #00f5ff;
+    border-bottom-color: #00f5ff;
+}
+
+/* Анимация мерцания */
+@keyframes cyberFlicker {
+    0%, 100% {
+        text-shadow:
+                0 0 5px #00f5ff,
+                0 0 10px #00f5ff,
+                0 0 20px #00f5ff,
+                0 0 40px #00f5ff,
+                0 0 80px #ff003c,
+                0 0 90px #ff003c,
+                0 0 100px #ff003c;
+    }
+    50% {
+        text-shadow:
+                0 0 2px #00f5ff,
+                0 0 5px #00f5ff,
+                0 0 10px #00f5ff,
+                0 0 20px #00f5ff,
+                0 0 40px #ff003c,
+                0 0 60px #ff003c;
+    }
+    75% {
+        text-shadow:
+                0 0 8px #00f5ff,
+                0 0 15px #00f5ff,
+                0 0 25px #00f5ff,
+                0 0 50px #00f5ff,
+                0 0 100px #ff003c,
+                0 0 120px #ff003c,
+                0 0 150px #ff003c;
+    }
+}
+
+/* Сканирующая линия */
+.scan-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00f5ff, transparent);
+    box-shadow: 0 0 10px #00f5ff;
+    animation: scan 3s linear infinite;
+    z-index: 2;
+}
+
+@keyframes scan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+}
+
+/* Угловые декорации */
+.corner-decoration {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #00f5ff;
+    box-shadow: 0 0 10px #00f5ff;
+}
+
+.corner-top-left {
+    top: 20px;
+    left: 20px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-top-right {
+    top: 20px;
+    right: 20px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-bottom-left {
+    bottom: 20px;
+    left: 20px;
+    border-right: none;
+    border-top: none;
+}
+
+.corner-bottom-right {
+    bottom: 20px;
+    right: 20px;
+    border-left: none;
+    border-top: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .neon-text {
+        font-size: 2rem;
+        letter-spacing: 2px;
+    }
+
+    .api-text {
+        font-size: 1rem;
+    }
+
+    .corner-decoration {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .neon-text {
+        font-size: 1.5rem;
+        letter-spacing: 1px;
+    }
+
+    .api-text {
+        font-size: 0.9rem;
+    }
+}
