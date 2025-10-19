@@ -43,7 +43,13 @@ public class UserService {
         System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         System.out.println("Sending event to Kafka: " + event);
         System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        kafkaTemplate.send("user-events", event);
+        kafkaTemplate.send("user-events", event).whenComplete((result, ex) -> {
+            if (ex == null) {
+                System.out.println("Kafka send SUCCESS: " + result.getRecordMetadata());
+            } else {
+                System.out.println("Kafka send FAILED: " + ex.getMessage());
+            }
+        });
         return toResponseDTO(savedUser);
     }
 
