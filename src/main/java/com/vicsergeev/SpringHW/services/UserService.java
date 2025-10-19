@@ -12,6 +12,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Created by Victor 09.10.2025
+ */
+
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
