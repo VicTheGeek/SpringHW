@@ -21,10 +21,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    private int age;
+    private Integer age;
 
+    @Column(nullable = false)
     private String email;
 
     @Column(name = "created_at", nullable = false)
@@ -33,4 +35,5 @@ public class User {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    public User() {}
 }

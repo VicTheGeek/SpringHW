@@ -1,9 +1,9 @@
 package com.vicsergeev.SpringHW.controllers;
 
-import com.vicsergeev.SpringHW.dto.UserCreateDTO;
+import com.vicsergeev.SpringHW.dto.UserDTO;
 import com.vicsergeev.SpringHW.dto.UserResponseDTO;
-import com.vicsergeev.SpringHW.dto.UserUpdateDTO;
 import com.vicsergeev.SpringHW.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,13 +36,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreateDTO createDTO) {
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO createDTO) {
         UserResponseDTO response = userService.createUser(createDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO updateDTO) {
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO updateDTO) {
         UserResponseDTO response = userService.updateUser(id, updateDTO);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -50,6 +50,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 }

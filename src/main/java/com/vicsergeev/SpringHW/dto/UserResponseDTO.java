@@ -19,7 +19,7 @@ public class UserResponseDTO {
     private String email;
     private LocalDateTime createdAt;
 
-    public UserResponseDTO() {}
+    public UserResponseDTO(long id, String john, int age) {}
 
     public UserResponseDTO(Long id, String name, Integer age, String email, LocalDateTime createdAt) {
         this.id = id;
@@ -29,4 +29,7 @@ public class UserResponseDTO {
         this.createdAt = createdAt;
     }
 
+    public UserResponseDTO() {
+
+    }
 }

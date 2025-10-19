@@ -3,7 +3,7 @@ package com.vicsergeev.SpringHW;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vicsergeev.SpringHW.controllers.UserController;
-import com.vicsergeev.SpringHW.dto.UserCreateDTO;
+import com.vicsergeev.SpringHW.dto.UserDTO;
 import com.vicsergeev.SpringHW.services.UserService;
 import com.vicsergeev.SpringHW.dto.UserResponseDTO;
 import org.junit.jupiter.api.Test;
@@ -50,16 +50,17 @@ public class UserControllerTest {
 
     @Test
     void createUser() throws Exception {
-        UserCreateDTO createDto = new UserCreateDTO("test", 30, "aa@aa.aa", LocalDateTime.now());
-        UserResponseDTO responseDto = new UserResponseDTO(1L, "test", 30, "aa@aa.aa", createDto.createdAt());
+        UserDTO createDto = new UserDTO("John", "john@example.com", 30);
+        UserResponseDTO responseDto = new UserResponseDTO(1L, "John", 30);
 
-        when(userService.createUser(any(UserCreateDTO.class))).thenReturn(responseDto);
+        when(userService.createUser(any(UserDTO.class))).thenReturn(responseDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("test"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("John"))
                 .andExpect(jsonPath("$.age").value(30));
     }
 }

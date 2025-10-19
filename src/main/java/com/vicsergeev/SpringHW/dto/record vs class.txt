@@ -13,4 +13,3 @@ private String name;
 private Integer age; и т.д.
 тогда для POSt /users клиент передает все поля, userservice проверяет что они не null
 и в PUT /users/id клиент передает только нужные поля, а userservice обрабатывает null как "не обновляй"
-
