@@ -76,6 +76,10 @@ public class UserService {
         return toResponseDTO(updatedUser);
     }
 
+    public boolean userExists(Long id) {
+        return userRepository.existsById(id);
+    }
+
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         UserEventDTO event = new UserEventDTO(UserEventDTO.DELETE, user.getEmail(), user.getName());
