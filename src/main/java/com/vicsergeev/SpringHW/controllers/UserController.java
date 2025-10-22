@@ -9,11 +9,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Victor 09.10.2025
@@ -25,6 +29,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+
     private final String codeDescription = "internal server error - check if docker with kafka is up and running";
 
     public UserController(UserService userService,
@@ -39,9 +44,22 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+    public ResponseEntity<CollectionModel<EntityModel<UserResponseDTO>>> getAllUsers() {
         List<UserResponseDTO> users = userService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        List<EntityModel<UserResponseDTO>> userResources = users.stream()
+                .map(user -> EntityModel.of(user)
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(user.getId())).withRel("self"))
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers()).withRel("all-users")))
+                .collect(Collectors.toList());
+
+        CollectionModel<EntityModel<UserResponseDTO>> collectionModel = CollectionModel.of(userResources,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers()).withRel("self"));
+
+        return ResponseEntity.status(HttpStatus.OK).body(collectionModel);
     }
 
     @Operation(summary = "get user data by its ID", description = "return user data in json")
@@ -51,15 +69,21 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<UserResponseDTO>> getUserById(@PathVariable Long id) {
         try {
             if (userService.userExists(id)) {
-                return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+                UserResponseDTO user = userService.findById(id);
+                EntityModel<UserResponseDTO> resource = EntityModel.of(user)
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(id)).withRel("self"))
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers()).withRel("all-users"))
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).updateUser(id, null)).withRel("update-user"))
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).deleteUser(id)).withRel("delete-user"));
+                return ResponseEntity.status(HttpStatus.OK).body(resource);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(userService.findById(id));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -69,9 +93,16 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO createDTO) {
-        UserResponseDTO response = userService.createUser(createDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<EntityModel<UserResponseDTO>> createUser(@Valid @RequestBody UserDTO createDTO) {
+        try {
+            UserResponseDTO response = userService.createUser(createDTO);
+            EntityModel<UserResponseDTO> resource = EntityModel.of(response)
+                    .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(response.getId())).withSelfRel())
+                    .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers()).withRel("all-users"));
+            return ResponseEntity.status(HttpStatus.CREATED).body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Operation(summary = "update user by ID", description = "operation update user with entered data by its ID")
@@ -81,11 +112,14 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO updateDTO) {
+    public ResponseEntity<EntityModel<UserResponseDTO>> updateUser(@PathVariable Long id, @RequestBody UserDTO updateDTO) {
         try {
             if (userService.userExists(id)) {
                 UserResponseDTO response = userService.updateUser(id, updateDTO);
-                return ResponseEntity.status(HttpStatus.OK).body(response);
+                EntityModel<UserResponseDTO> resource = EntityModel.of(response)
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserById(response.getId())).withSelfRel())
+                        .add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers()).withRel("all-users"));
+                return ResponseEntity.status(HttpStatus.OK).body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
@@ -107,10 +141,10 @@ public class UserController {
                 userService.deleteUser(id);
                 return ResponseEntity.accepted().build();
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
