@@ -2,7 +2,6 @@ package com.vicsergeev.SpringHW.controllers;
 
 import com.vicsergeev.SpringHW.dto.UserDTO;
 import com.vicsergeev.SpringHW.dto.UserResponseDTO;
-import com.vicsergeev.SpringHW.exception.UserNotFoundException;
 import com.vicsergeev.SpringHW.repositories.UserRepository;
 import com.vicsergeev.SpringHW.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +25,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final String codeDescription = "internal server error - check if docker with kafka is up and running";
 
     public UserController(UserService userService,
                           UserRepository userRepository) {
@@ -36,9 +34,9 @@ public class UserController {
 
     @Operation(summary = "show all users in DB", description = "return a list of existing users in DB")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "user exist in DB and found"),
-            @ApiResponse(responseCode = "404", description = "resource not found"),
-            @ApiResponse(responseCode = "500", description = "internal server error - check if docker with kafka is up and running")
+            @ApiResponse(responseCode = "200", description = "users found"),
+            @ApiResponse(responseCode = "404", description = "no users found"),
+            @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
@@ -50,7 +48,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user found"),
             @ApiResponse(responseCode = "404", description = "user not found"),
-            @ApiResponse(responseCode = "500", description = "internal server error - check if docker with kafka is up and running")
+            @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
@@ -68,7 +66,7 @@ public class UserController {
     @Operation(summary = "create user", description = "operation creates user with entered data")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "user created successfully"),
-            @ApiResponse(responseCode = "500", description = "internal server error - check if docker with kafka is up and running")
+            @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO createDTO) {
@@ -80,7 +78,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "user updated successfully"),
             @ApiResponse(responseCode = "404", description = "user not found"),
-            @ApiResponse(responseCode = "500", description = "internal server error - check if docker-kafka is up and running")
+            @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserDTO updateDTO) {
@@ -100,7 +98,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "202", description = "user deleted successfully"),
             @ApiResponse(responseCode = "404", description = "user not found"),
-            @ApiResponse(responseCode = "500", description = "internal server error - check if docker-kafka is up and running")
+            @ApiResponse(responseCode = "500", description = codeDescription)
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable @Valid Long id) {
