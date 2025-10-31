@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -40,16 +42,9 @@ public class UserService {
         user.setEmail(createDTO.getEmail());
         User savedUser = userRepository.save(user);
         UserEventDTO event = new UserEventDTO(UserEventDTO.CREATE, createDTO.getEmail(), createDTO.getName());
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        System.out.println("Sending event to Kafka: " + event);
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        kafkaTemplate.send("user-events", event).whenComplete((result, ex) -> {
-            if (ex == null) {
-                System.out.println("Kafka send SUCCESS: " + result.getRecordMetadata());
-            } else {
-                System.out.println("Kafka send FAILED: " + ex.getMessage());
-            }
-        });
+
+        sendToKafka(event); // via breaker
+
         return toResponseDTO(savedUser);
     }
 
@@ -65,17 +60,22 @@ public class UserService {
             user.setEmail(updateDTO.getEmail());
         }
         User updatedUser = userRepository.save(user);
-        UserEventDTO event = new UserEventDTO(UserEventDTO.UPDATE, updateDTO.getEmail() != null ? updateDTO.getEmail() : user.getEmail(), updateDTO.getName() != null ? updateDTO.getName() : user.getName());
-        System.out.println("Sending event to Kafka: " + event);
-        kafkaTemplate.send("user-events", event);
+
+        UserEventDTO event = new UserEventDTO(UserEventDTO.UPDATE,
+                updateDTO.getEmail() != null ? updateDTO.getEmail() : user.getEmail(),
+                updateDTO.getName() != null ? updateDTO.getName() : user.getName());
+
+        sendToKafka(event);
+
         return toResponseDTO(updatedUser);
     }
 
     public void deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         UserEventDTO event = new UserEventDTO(UserEventDTO.DELETE, user.getEmail(), user.getName());
-        System.out.println("Sending event to Kafka: " + event);
-        kafkaTemplate.send("user-events", event);
+
+        sendToKafka(event);
+
         userRepository.delete(user);
     }
 
@@ -87,5 +87,22 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setCreatedAt(user.getCreatedAt());
         return dto;
+    }
+
+    // circuit breaker
+    @CircuitBreaker(name = "kafkaPublisher", fallbackMethod = "fallbackKafka")
+    protected void sendToKafka(UserEventDTO event) {
+        try {
+            kafkaTemplate.send("user-events", event).get(java.time.Duration.ofSeconds(3).toMillis(),
+                    java.util.concurrent.TimeUnit.MILLISECONDS);
+            System.out.println("Kafka send SUCCESS: " + event);
+        } catch (Exception e) {
+            System.out.println("Kafka send FAILED: " + e.getMessage());
+            throw new RuntimeException(e); // IMPORTANT
+        }
+    }
+
+    protected void fallbackKafka(UserEventDTO event, Throwable t) {
+        System.out.println("Kafka fallback, event buffered/skipped: " + event + ", reason: " + t);
     }
 }
