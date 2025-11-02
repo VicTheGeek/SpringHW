@@ -30,3 +30,13 @@ server:
 logging:
   level:
     org.apache.kafka: WARN
+
+# curcuit breaker
+resilience4j:
+  circuitbreaker:
+    instances:
+      kafkaPublisher:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s

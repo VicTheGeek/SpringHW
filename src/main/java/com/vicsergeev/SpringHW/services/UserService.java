@@ -12,11 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Created by Victor 09.10.2025
- */
-
-
 @Service
 public class UserService {
     private final UserRepository userRepository;
@@ -74,10 +69,6 @@ public class UserService {
         System.out.println("Sending event to Kafka: " + event);
         kafkaTemplate.send("user-events", event);
         return toResponseDTO(updatedUser);
-    }
-
-    public boolean userExists(Long id) {
-        return userRepository.existsById(id);
     }
 
     public void deleteUser(Long id) {
