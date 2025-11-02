@@ -6,6 +6,8 @@ import com.vicsergeev.SpringHW.dto.UserResponseDTO;
 import com.vicsergeev.SpringHW.exception.UserNotFoundException;
 import com.vicsergeev.SpringHW.model.User;
 import com.vicsergeev.SpringHW.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 public class UserService {
     private final UserRepository userRepository;
     private final KafkaTemplate<String, UserEventDTO> kafkaTemplate;
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
     public UserService(UserRepository userRepository, KafkaTemplate<String, UserEventDTO> kafkaTemplate) {
         this.userRepository = userRepository;
@@ -95,14 +99,14 @@ public class UserService {
         try {
             kafkaTemplate.send("user-events", event).get(java.time.Duration.ofSeconds(3).toMillis(),
                     java.util.concurrent.TimeUnit.MILLISECONDS);
-            System.out.println("Kafka send SUCCESS: " + event);
+            log.info("Kafka send SUCCESS: " + event);
         } catch (Exception e) {
-            System.out.println("Kafka send FAILED: " + e.getMessage());
+            log.info("Kafka send FAILED: " + e.getMessage());
             throw new RuntimeException(e); // IMPORTANT
         }
     }
 
     protected void fallbackKafka(UserEventDTO event, Throwable t) {
-        System.out.println("Kafka fallback, event buffered/skipped: " + event + ", reason: " + t);
+        log.info("Kafka fallback, event buffered/skipped: " + event + ", reason: " + t);
     }
 }
