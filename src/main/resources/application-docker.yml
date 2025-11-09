@@ -1,0 +1,59 @@
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://postgres:5432/mydb?sslmode=disable
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    bootstrap-servers: kafka:29092
+    consumer:
+      group-id: user-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    template:
+      default-topic: user-events
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework: DEBUG
+    ru.vicsergeev: DEBUG
+    org.apache.kafka: INFO
+
+# Email configuration
+spring.mail.host: mailhog
+spring.mail.port: 1025
+spring.mail.username: ""
+spring.mail.password: ""
+spring.mail.properties.mail.smtp.auth: false
+spring.mail.properties.mail.smtp.starttls.enable: false
+spring.mail.properties.mail.smtp.connectiontimeout: 5000
+spring.mail.properties.mail.smtp.timeout: 5000
+spring.mail.properties.mail.smtp.writetimeout: 5000
+
+# circuit breaker configuration is in the main application.yml

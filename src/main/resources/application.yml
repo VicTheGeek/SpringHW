@@ -10,19 +10,6 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      properties:
-        spring:
-          json:
-            add:
-              type:
-                headers: true
-            trusted:
-              packages: com.vicsergeev.SpringHW.dto
     template:
       default-topic: user-events
 server:
